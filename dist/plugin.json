@@ -1,0 +1,22 @@
+{
+  "type": "panel",
+  "name": "Iot Message",
+  "id": "iot-msg",
+  "info": {
+    "description": "Send messages to IoT Things",
+    "author": {
+      "name": "Adrian Gruszczynski",
+      "url": "example.com"
+    },
+    "keywords": [ ],
+    "logos": { },
+    "links": [ ],
+    "screenshots": [ ],
+    "version": "0.0.1",
+    "updated": "2017-04-05"
+  },
+  "dependencies": {
+    "grafanaVersion": "4.6.x",
+    "plugins": [ ]
+  }
+}

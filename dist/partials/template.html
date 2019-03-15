@@ -1,0 +1,35 @@
+<div ng-if="ctrl.template == 'home'">
+    <input type="text" value="button" ng-model="msg">
+    <button class="btn-secondary" ng-click="ctrl.sendMessage(msg)">Send message</button>
+</div>
+
+
+<div ng-if="ctrl.template == 'settings'">
+    <h2>Credentials</h2>
+    <label for="username">Username:</label>
+    <input type="text" placeholder="TENANT\username" id="username" ng-model="username">
+    <label for="password">Password:</label>
+    <input type="password" placeholder="password" id="password" ng-model="password">
+    <label for="apitoken">ThingsApiToken:</label>
+    <input type="text" id="apitoken" placeholder="api token" ng-model="apitoken">
+    <label for="thingid">Thing Id:</label>
+    <input type="text" id="thingid" placeholder="namespace:thingId" ng-model="thingid">
+    <br>
+    <button class="btn-secondary" ng-click="ctrl.storeCredentials(username, password,
+                                                                    apitoken, thingid)">Store credentials
+    </button>
+    <p ng-if="ctrl.response">{{ ctrl.response }}</p>
+</div>
+
+
+<div class="settings" style="position: absolute; bottom: 10px">
+    <button ng-click="ctrl.switchTemplate()" class="btn navbar-button navbar-button--settings"><i class="fa fa-cog"></i>
+    </button>
+</div>
+
+
+<style>
+    .btn-secondary {
+        margin-right: 3px;
+    }
+</style>
