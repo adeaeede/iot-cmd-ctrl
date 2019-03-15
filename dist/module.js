@@ -109,6 +109,7 @@ var Ctrl = function (_PanelCtrl) {
             'b64': btoa('JFQVAK9UHT\\adrian_g:eQL7|%`e?Owq8TY.4!k?'),
             'apiToken': 'd7d568e7a8fc4c4bab2666fd86b673e5'
         };
+        console.log(_this.credentials);
 
         _this.toggle = false;
         _this.template = 'home';
@@ -165,19 +166,21 @@ var Ctrl = function (_PanelCtrl) {
             var message = msg;
             var subject = 'message';
             var url = 'https://things.s-apps.de1.bosch-iot-cloud.com/api/2/things/' + thingId + '/inbox/messages/' + subject + '?timeout=0';
+            var headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-cr-api-token': apiToken,
+                'Authorization': 'Basic ' + b64
+            };
+            console.log('HEADERS:', headers);
 
             fetch(url, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'x-cr-api-token': apiToken,
-                    'Authorization': 'Basic ' + b64
-                },
+                // mode: 'no-cors',
+                headers: headers,
                 body: JSON.stringify(message)
             }).then(function (response) {
-                return console.log(response);
+                console.log(response);
             });
         }
     }, {

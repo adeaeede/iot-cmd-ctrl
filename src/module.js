@@ -16,6 +16,7 @@ class Ctrl extends PanelCtrl {
             'b64': btoa('JFQVAK9UHT\\adrian_g:eQL7|%`e?Owq8TY.4!k?'),
             'apiToken': 'd7d568e7a8fc4c4bab2666fd86b673e5'
         }
+        console.log(this.credentials)
 
         this.toggle = false;
         this.template = 'home';
@@ -67,19 +68,20 @@ class Ctrl extends PanelCtrl {
         let subject = 'message';
         let url = 'https://things.s-apps.de1.bosch-iot-cloud.com/api/2/things/' + thingId +
             '/inbox/messages/' + subject + '?timeout=0';
-
-
-        fetch(url, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
+        let headers = {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'x-cr-api-token': apiToken,
                 'Authorization': 'Basic ' + b64
-            },
+            }
+        console.log('HEADERS:', headers);
+
+        fetch(url, {
+            method: 'POST',
+            // mode: 'no-cors',
+            headers: headers,
             body: JSON.stringify(message)
-        }).then((response) => console.log(response));
+        }).then((response) => {console.log(response)});
 
     }
 
