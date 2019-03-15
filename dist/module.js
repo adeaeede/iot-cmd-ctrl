@@ -165,7 +165,7 @@ var Ctrl = function (_PanelCtrl) {
             var apiToken = this.credentials.apiToken;
             var message = msg;
             var subject = 'message';
-            var url = 'https://things.s-apps.de1.bosch-iot-cloud.com/api/2/things/' + thingId + '/inbox/messages/' + subject + '?timeout=0';
+            var url = 'https://things.eu-1.bosch-iot-suite.com/api/2/things/' + thingId + '/inbox/messages/' + subject + '?timeout=0';
             var headers = {
                 'Accept': 'application/json',
                 'x-cr-api-token': apiToken,
@@ -191,7 +191,7 @@ var Ctrl = function (_PanelCtrl) {
             var message = msg;
             var subject = 'message';
             var http = new XMLHttpRequest();
-            var url = 'https://things.s-apps.de1.bosch-iot-cloud.com/api/2/things/' + thingId + '/inbox/messages/' + subject + '?timeout=0';
+            var url = 'https://things.eu-1.bosch-iot-suite.com/api/2/things/' + thingId + '/inbox/messages/' + subject + '?timeout=0';
             var params = '"text"';
             http.open('POST', url, true);
 

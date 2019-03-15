@@ -66,7 +66,7 @@ class Ctrl extends PanelCtrl {
         let apiToken = this.credentials.apiToken;
         let message = msg;
         let subject = 'message';
-        let url = 'https://things.s-apps.de1.bosch-iot-cloud.com/api/2/things/' + thingId +
+        let url = 'https://things.eu-1.bosch-iot-suite.com/api/2/things/' + thingId +
             '/inbox/messages/' + subject + '?timeout=0';
         let headers = {
                 'Accept': 'application/json',
@@ -91,7 +91,7 @@ class Ctrl extends PanelCtrl {
         let message = msg;
         let subject = 'message';
         var http = new XMLHttpRequest();
-        let url = 'https://things.s-apps.de1.bosch-iot-cloud.com/api/2/things/' + thingId +
+        let url = 'https://things.eu-1.bosch-iot-suite.com/api/2/things/' + thingId +
             '/inbox/messages/' + subject + '?timeout=0';
         var params = '"text"';
         http.open('POST', url, true);
