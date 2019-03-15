@@ -168,6 +168,7 @@ var Ctrl = function (_PanelCtrl) {
 
             fetch(url, {
                 method: 'POST',
+                mode: 'no-cors',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
