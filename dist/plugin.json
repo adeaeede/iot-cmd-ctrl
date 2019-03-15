@@ -1,7 +1,7 @@
 {
   "type": "panel",
-  "name": "Iot Message",
-  "id": "iot-msg",
+  "name": "Iot Command & Control",
+  "id": "iot-cmd-ctrl",
   "info": {
     "description": "Send messages to IoT Things",
     "author": {
