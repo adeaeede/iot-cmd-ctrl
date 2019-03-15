@@ -105,7 +105,7 @@ var Ctrl = function (_PanelCtrl) {
         var _this = _possibleConstructorReturn(this, (Ctrl.__proto__ || Object.getPrototypeOf(Ctrl)).call(this, $scope, $injector));
 
         _this.credentials = {
-            'thingId': 'test_namespace:mything',
+            'thingId': 'test_namespace:b9f06f24-dd74-4bb6-9786-c639e5dc4309',
             'b64': btoa('JFQVAK9UHT\\adrian_g:eQL7|%`e?Owq8TY.4!k?'),
             'apiToken': 'd7d568e7a8fc4c4bab2666fd86b673e5'
         };
