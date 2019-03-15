@@ -12,9 +12,9 @@ class Ctrl extends PanelCtrl {
     constructor($scope, $injector) {
         super($scope, $injector);
         this.credentials = {
-            'thingId': 'test_namespace:b9f06f24-dd74-4bb6-9786-c639e5dc4309',
+            'thingId': 'my.things:mything',
             'b64': btoa('JFQVAK9UHT\\adrian_g:eQL7|%`e?Owq8TY.4!k?'),
-            'apiToken': 'd7d568e7a8fc4c4bab2666fd86b673e5'
+            'apiToken': 'e8183eeba24345aab0741506c56a4198'
         }
         console.log(this.credentials)
 
