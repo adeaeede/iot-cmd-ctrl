@@ -15,8 +15,13 @@
     <label for="thingid">Thing Id:</label>
     <input type="text" id="thingid" placeholder="namespace:thingId" ng-model="thingid">
     <br>
+    <label for="select">Server:</label>
+    <select ng-init="server='AWS'" ng-model="server" id="select">
+        <option ng-selected="" value="AWS">AWS (EU-1)</option>
+        <option value="BIC">Bosch IoT Cloud (EU-2)</option>
+    </select>
     <button class="btn-secondary" ng-click="ctrl.storeCredentials(username, password,
-                                                                    apitoken, thingid)">Store credentials
+                                                                    apitoken, thingid, server)">Store credentials
     </button>
     <p ng-if="ctrl.response">{{ ctrl.response }}</p>
 </div>

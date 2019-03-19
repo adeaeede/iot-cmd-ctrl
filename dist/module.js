@@ -102,17 +102,17 @@ var Ctrl = function (_PanelCtrl) {
     function Ctrl($scope, $injector) {
         _classCallCheck(this, Ctrl);
 
+        // this.credentials = {
+        //     'thingId': 'my.things:my_thing',
+        //     'uri': encodeURIComponent('JFQVAK9UHT\\adrian_g') + ':' + encodeURIComponent('eQL7|%`e?Owq8TY.4!k?'),
+        //     'apiToken': 'e8183eeba24345aab0741506c56a4198',
+        //     'server': 'things.eu-1.bosch-iot-suite.com'
+        // };
         var _this = _possibleConstructorReturn(this, (Ctrl.__proto__ || Object.getPrototypeOf(Ctrl)).call(this, $scope, $injector));
-
-        _this.credentials = {
-            'thingId': 'my.things:mything',
-            'b64': btoa('JFQVAK9UHT\\adrian_g:eQL7|%`e?Owq8TY.4!k?'),
-            'apiToken': 'e8183eeba24345aab0741506c56a4198'
-        };
-        console.log(_this.credentials);
 
         _this.toggle = false;
         _this.template = 'home';
+        _this.init();
         // this.credentials = {};
 
         return _this;
@@ -141,45 +141,83 @@ var Ctrl = function (_PanelCtrl) {
         key: 'initCredentials',
         value: function initCredentials() {
             this.credentials = {
-                'b64': localStorage.getItem('basic64') || '',
+                'uri': localStorage.getItem('uri') || '',
                 'apiToken': localStorage.getItem('api_token') || '',
-                'thingId': localStorage.getItem('thing_id') || ''
+                'thingId': localStorage.getItem('thing_id') || '',
+                'server': localStorage.getItem('server') || ''
             };
         }
     }, {
         key: 'storeCredentials',
-        value: function storeCredentials(username, password, apiToken, thingId) {
-            var token = username.toString() + ':' + password.toString();
-            var b64 = btoa(token);
-            localStorage.setItem('basic64', b64);
+        value: function storeCredentials(username, password, apiToken, thingId, server) {
+            var token = encodeURIComponent(username.toString()) + ':' + encodeURIComponent(password.toString());
+            localStorage.setItem('uri', token);
             localStorage.setItem('api_token', apiToken);
             localStorage.setItem('thing_id', thingId);
+            switch (server) {
+                case 'AWS':
+                    localStorage.setItem('server', 'things.eu-1.bosch-iot-suite.com');
+                    break;
+                case 'BIC':
+                    localStorage.setItem('server', 'things.s-apps.de1.bosch-iot-cloud.com');
+                    break;
+                default:
+                    localStorage.setItem('server', 'things.eu-1.bosch-iot-suite.com');
+            }
             this.initCredentials();
             this.response = 'Credentials saved';
         }
     }, {
+        key: 'init',
+        value: function init() {
+            var _this2 = this;
+
+            this.initCredentials();
+            console.log(this.credentials);
+            if (Object.keys(this.credentials).length === 0) {
+                this.response = 'No credentials';
+                return;
+            }
+            this.connect().then(function (ws) {
+                _this2.response = 'Connected';
+                _this2.ws = ws;
+                _this2.ws.onmessage = function (e) {
+                    return console.log(e.data);
+                };
+            }).catch(function (err) {
+                _this2.response = 'Connection error';
+                console.log(err);
+            });
+        }
+    }, {
         key: 'sendMessage',
         value: function sendMessage(msg) {
-            var b64 = this.credentials.b64;
-            var thingId = this.credentials.thingId;
-            var apiToken = this.credentials.apiToken;
-            var message = msg;
-            var subject = 'message';
-            var url = 'https://things.eu-1.bosch-iot-suite.com/api/2/things/' + thingId + '/inbox/messages/' + subject + '?timeout=0';
-            var headers = {
-                'Accept': 'application/json',
-                'x-cr-api-token': apiToken,
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic ' + b64
+            var topic = this.credentials.thingId.split(':');
+            var testMsg = {
+                "topic": topic[0] + "/" + topic[1] + "/things/live/messages/message",
+                "headers": {
+                    "content-type": "text/plain",
+                    "correlation-id": this.credentials.thingId
+                },
+                "path": "/inbox/messages/message",
+                "value": msg
             };
-
-            fetch(url, {
-                method: 'POST',
-                mode: 'cors',
-                headers: headers,
-                body: JSON.stringify(message)
-            }).then(function (response) {
-                console.log(response);
+            this.ws.send(JSON.stringify(testMsg));
+        }
+    }, {
+        key: 'connect',
+        value: function connect() {
+            var uri = this.credentials.uri;
+            var server = this.credentials.server;
+            var apiToken = this.credentials.apiToken;
+            return new Promise(function (resolve, reject) {
+                var ws = new WebSocket('wss://' + uri + '@' + server + '/ws/2?x-cr-api-token=' + apiToken);
+                ws.onopen = function () {
+                    resolve(ws);
+                };
+                ws.onerror = function (err) {
+                    reject(err);
+                };
             });
         }
     }, {

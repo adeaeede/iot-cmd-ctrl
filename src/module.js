@@ -11,15 +11,15 @@ class Ctrl extends PanelCtrl {
 
     constructor($scope, $injector) {
         super($scope, $injector);
-        this.credentials = {
-            'thingId': 'my.things:mything',
-            'b64': btoa('JFQVAK9UHT\\adrian_g:eQL7|%`e?Owq8TY.4!k?'),
-            'apiToken': 'e8183eeba24345aab0741506c56a4198'
-        }
-        console.log(this.credentials)
-
+        // this.credentials = {
+        //     'thingId': 'my.things:my_thing',
+        //     'uri': encodeURIComponent('JFQVAK9UHT\\adrian_g') + ':' + encodeURIComponent('eQL7|%`e?Owq8TY.4!k?'),
+        //     'apiToken': 'e8183eeba24345aab0741506c56a4198',
+        //     'server': 'things.eu-1.bosch-iot-suite.com'
+        // };
         this.toggle = false;
         this.template = 'home';
+        this.init();
         // this.credentials = {};
 
     }
@@ -44,44 +44,79 @@ class Ctrl extends PanelCtrl {
 
     initCredentials() {
         this.credentials = {
-            'b64': localStorage.getItem('basic64') || '',
+            'uri': localStorage.getItem('uri') || '',
             'apiToken': localStorage.getItem('api_token') || '',
-            'thingId': localStorage.getItem('thing_id') || ''
+            'thingId': localStorage.getItem('thing_id') || '',
+            'server': localStorage.getItem('server') || ''
         }
     }
 
-    storeCredentials(username, password, apiToken, thingId) {
-        let token = username.toString() + ':' + password.toString();
-        let b64 = btoa(token);
-        localStorage.setItem('basic64', b64);
+    storeCredentials(username, password, apiToken, thingId, server) {
+        let token = encodeURIComponent(username.toString()) + ':' + encodeURIComponent(password.toString());
+        localStorage.setItem('uri', token);
         localStorage.setItem('api_token', apiToken);
         localStorage.setItem('thing_id', thingId);
+        switch (server) {
+            case 'AWS':
+                localStorage.setItem('server', 'things.eu-1.bosch-iot-suite.com');
+                break;
+            case 'BIC':
+                localStorage.setItem('server', 'things.s-apps.de1.bosch-iot-cloud.com');
+                break;
+            default:
+                localStorage.setItem('server', 'things.eu-1.bosch-iot-suite.com');
+        }
         this.initCredentials();
         this.response = 'Credentials saved';
     }
 
-    sendMessage(msg) {
-        let b64 = this.credentials.b64;
-        let thingId = this.credentials.thingId;
+    init() {
+        this.initCredentials();
+        console.log(this.credentials)
+        if (Object.keys(this.credentials).length === 0) {
+            this.response = 'No credentials';
+            return;
+        }
+        this.connect().then((ws) => {
+            this.response = 'Connected';
+            this.ws = ws;
+            this.ws.onmessage = (e) => console.log(e.data)
+        }).catch((err) => {
+            this.response = 'Connection error';
+            console.log(err)
+
+        })
+    }
+
+    sendMessage(msg){
+        let topic = this.credentials.thingId.split(':');
+        let testMsg = {
+            "topic": topic[0] + "/" + topic[1] +  "/things/live/messages/message",
+            "headers": {
+                "content-type": "text/plain",
+                "correlation-id": this.credentials.thingId
+            },
+            "path": "/inbox/messages/message",
+            "value": msg
+        };
+        this.ws.send(JSON.stringify(testMsg));
+    }
+
+    connect() {
+        let uri = this.credentials.uri;
+        let server = this.credentials.server;
         let apiToken = this.credentials.apiToken;
-        let message = msg;
-        let subject = 'message';
-        let url = 'https://things.eu-1.bosch-iot-suite.com/api/2/things/' + thingId +
-            '/inbox/messages/' + subject + '?timeout=0';
-        let headers = {
-                'Accept': 'application/json',
-                'x-cr-api-token': apiToken,
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic ' + b64
-            }
-
-        fetch(url, {
-            method: 'POST',
-            mode: 'cors',
-            headers: headers,
-            body: JSON.stringify(message)
-        }).then((response) => {console.log(response)});
-
+        return new Promise(function (resolve, reject) {
+            let ws = new WebSocket('wss://' + uri + '@'
+                + server + '/ws/2?x-cr-api-token='
+                + apiToken );
+            ws.onopen = function () {
+                resolve(ws);
+            };
+            ws.onerror = function (err) {
+                reject(err);
+            };
+        });
     }
 
 
