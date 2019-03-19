@@ -173,7 +173,6 @@ var Ctrl = function (_PanelCtrl) {
             var _this2 = this;
 
             this.initCredentials();
-            console.log(this.credentials);
             if (Object.keys(this.credentials).length === 0) {
                 this.response = 'No credentials';
                 return;

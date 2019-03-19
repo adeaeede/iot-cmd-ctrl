@@ -72,7 +72,6 @@ class Ctrl extends PanelCtrl {
 
     init() {
         this.initCredentials();
-        console.log(this.credentials)
         if (Object.keys(this.credentials).length === 0) {
             this.response = 'No credentials';
             return;
