@@ -175,42 +175,12 @@ var Ctrl = function (_PanelCtrl) {
 
             fetch(url, {
                 method: 'POST',
-                // mode: 'no-cors',
+                mode: 'cors',
                 headers: headers,
                 body: JSON.stringify(message)
             }).then(function (response) {
                 console.log(response);
             });
-        }
-    }, {
-        key: 'sendMessage2',
-        value: function sendMessage2(msg) {
-            var b64 = this.credentials.b64;
-            var thingId = this.credentials.thingId;
-            var apiToken = this.credentials.apiToken;
-            var message = msg;
-            var subject = 'message';
-            var http = new XMLHttpRequest();
-            var url = 'https://things.eu-1.bosch-iot-suite.com/api/2/things/' + thingId + '/inbox/messages/' + subject + '?timeout=0';
-            var params = '"text"';
-            http.open('POST', url, true);
-
-            //Send the proper header information along with the request
-            http.setRequestHeader('Content-type', 'application/json');
-            http.setRequestHeader('Accept', 'application/json');
-            http.setRequestHeader('x-cr-api-token', apiToken);
-            http.setRequestHeader('Authorization', 'Basic ' + b64);
-
-            http.onreadystatechange = function () {
-                //Call a function when the state changes.
-                if (http.readyState == 4 && http.status == 200) {
-                    console.log(http.responseText);
-                } else {
-                    console.log(http);
-                }
-            };
-
-            http.send(params);
         }
     }, {
         key: 'initStyles',
