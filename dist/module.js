@@ -110,6 +110,7 @@ var Ctrl = function (_PanelCtrl) {
         // };
         var _this = _possibleConstructorReturn(this, (Ctrl.__proto__ || Object.getPrototypeOf(Ctrl)).call(this, $scope, $injector));
 
+        _this.response = '';
         _this.toggle = false;
         _this.template = 'home';
         _this.init();
@@ -164,7 +165,8 @@ var Ctrl = function (_PanelCtrl) {
                 default:
                     localStorage.setItem('server', 'things.eu-1.bosch-iot-suite.com');
             }
-            this.initCredentials();
+            this.init();
+            console.log(this.credentials);
             this.response = 'Credentials saved';
         }
     }, {

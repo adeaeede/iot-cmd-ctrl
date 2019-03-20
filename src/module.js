@@ -17,6 +17,7 @@ class Ctrl extends PanelCtrl {
         //     'apiToken': 'e8183eeba24345aab0741506c56a4198',
         //     'server': 'things.eu-1.bosch-iot-suite.com'
         // };
+        this.response = '';
         this.toggle = false;
         this.template = 'home';
         this.init();
@@ -66,7 +67,8 @@ class Ctrl extends PanelCtrl {
             default:
                 localStorage.setItem('server', 'things.eu-1.bosch-iot-suite.com');
         }
-        this.initCredentials();
+        this.init()
+        console.log(this.credentials)
         this.response = 'Credentials saved';
     }
 
