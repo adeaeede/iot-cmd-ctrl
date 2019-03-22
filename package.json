@@ -1,5 +1,5 @@
 {
-  "name": "Command & Control",
+  "name": "Command-and-control",
   "version": "1.1.0",
   "description": "Control your digital Twin using messages",
   "main": "dist/module.js",
