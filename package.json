@@ -1,7 +1,7 @@
 {
-  "name": "grafana-plugin-template-webpack",
-  "version": "1.0.0",
-  "description": "Some description",
+  "name": "Command & Control",
+  "version": "1.1.0",
+  "description": "Control your digital Twin using messages",
   "main": "dist/module.js",
   "scripts": {
     "build": "webpack --config build/webpack.prod.conf.js",

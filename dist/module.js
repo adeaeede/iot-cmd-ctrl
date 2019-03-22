@@ -102,19 +102,14 @@ var Ctrl = function (_PanelCtrl) {
     function Ctrl($scope, $injector) {
         _classCallCheck(this, Ctrl);
 
-        // this.credentials = {
-        //     'thingId': 'my.things:my_thing',
-        //     'uri': encodeURIComponent('JFQVAK9UHT\\adrian_g') + ':' + encodeURIComponent('eQL7|%`e?Owq8TY.4!k?'),
-        //     'apiToken': 'e8183eeba24345aab0741506c56a4198',
-        //     'server': 'things.eu-1.bosch-iot-suite.com'
-        // };
         var _this = _possibleConstructorReturn(this, (Ctrl.__proto__ || Object.getPrototypeOf(Ctrl)).call(this, $scope, $injector));
 
         _this.response = '';
         _this.toggle = false;
         _this.template = 'home';
+        _this.credentials = new Object();
+        _this.currentState = new Object();
         _this.init();
-        // this.credentials = {};
 
         return _this;
     }
@@ -149,9 +144,20 @@ var Ctrl = function (_PanelCtrl) {
             };
         }
     }, {
+        key: 'testConnection',
+        value: function testConnection() {
+            this.currentState.isTesting = true;
+            this.initWebsocket();
+            this.currentState.isTesting = false;
+        }
+    }, {
         key: 'storeCredentials',
         value: function storeCredentials(username, password, apiToken, thingId, server) {
-            var token = encodeURIComponent(username.toString()) + ':' + encodeURIComponent(password.toString());
+            try {
+                var token = encodeURIComponent(username.toString()) + ':' + encodeURIComponent(password.toString());
+            } catch (e) {
+                console.log(e);
+            }
             localStorage.setItem('uri', token);
             localStorage.setItem('api_token', apiToken);
             localStorage.setItem('thing_id', thingId);
@@ -165,30 +171,74 @@ var Ctrl = function (_PanelCtrl) {
                 default:
                     localStorage.setItem('server', 'things.eu-1.bosch-iot-suite.com');
             }
-            this.init();
-            console.log(this.credentials);
-            this.response = 'Credentials saved';
+            this.initCredentials();
+            this.currentState.isStored = true;
+            this.response = 'Credentials stored';
+            this.testConnection();
+        }
+    }, {
+        key: 'checkCredentials',
+        value: function checkCredentials() {
+            var _this2 = this;
+
+            Object.keys(this.credentials).forEach(function (k) {
+                if (_this2.credentials[k] == "") {
+                    return false;
+                }
+            });
+            return true;
+        }
+    }, {
+        key: 'showMessageStatus',
+        value: function showMessageStatus(msg) {
+            var _this3 = this;
+
+            var data = JSON.parse(msg.data);
+            if (data.status == 200) {
+                this.currentState.messageStatus = data.value;
+            } else {
+                this.currentState.messageStatus = data.value.message;
+            }
+            setTimeout(function () {
+                return _this3.currentState.messageStatus = "";
+            }, 1000);
+            this.$scope.$apply();
+        }
+    }, {
+        key: 'initWebsocket',
+        value: function initWebsocket() {
+            var _this4 = this;
+
+            this.connect().then(function (ws) {
+                _this4.currentState.isConnected = true;
+                _this4.$scope.$apply();
+                _this4.ws = ws;
+                _this4.ws.onmessage = function (e) {
+                    return _this4.showMessageStatus(e);
+                };
+            }).catch(function (err) {
+                _this4.response = 'Could not initialize connection.';
+                _this4.currentState.isConnected = false;
+                console.log(err);
+            });
         }
     }, {
         key: 'init',
         value: function init() {
-            var _this2 = this;
-
+            this.currentState = {
+                "isStored": false,
+                "isTesting": false,
+                "isConnected": false,
+                "isInitialized": false,
+                "messageStatus": ""
+            };
             this.initCredentials();
-            if (Object.keys(this.credentials).length === 0) {
-                this.response = 'No credentials';
-                return;
+            if (this.checkCredentials()) {
+                this.initWebsocket();
+            } else {
+                this.response = 'Credentials missing or corrupted.';
             }
-            this.connect().then(function (ws) {
-                _this2.response = 'Connected';
-                _this2.ws = ws;
-                _this2.ws.onmessage = function (e) {
-                    return console.log(e.data);
-                };
-            }).catch(function (err) {
-                _this2.response = 'Connection error';
-                console.log(err);
-            });
+            this.currentState.isInitialized = true;
         }
     }, {
         key: 'sendMessage',

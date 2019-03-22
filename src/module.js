@@ -11,17 +11,12 @@ class Ctrl extends PanelCtrl {
 
     constructor($scope, $injector) {
         super($scope, $injector);
-        // this.credentials = {
-        //     'thingId': 'my.things:my_thing',
-        //     'uri': encodeURIComponent('JFQVAK9UHT\\adrian_g') + ':' + encodeURIComponent('eQL7|%`e?Owq8TY.4!k?'),
-        //     'apiToken': 'e8183eeba24345aab0741506c56a4198',
-        //     'server': 'things.eu-1.bosch-iot-suite.com'
-        // };
         this.response = '';
         this.toggle = false;
         this.template = 'home';
+        this.credentials = new Object();
+        this.currentState = new Object()
         this.init();
-        // this.credentials = {};
 
     }
 
@@ -49,11 +44,22 @@ class Ctrl extends PanelCtrl {
             'apiToken': localStorage.getItem('api_token') || '',
             'thingId': localStorage.getItem('thing_id') || '',
             'server': localStorage.getItem('server') || ''
-        }
+        };
+    }
+
+    testConnection() {
+        this.currentState.isTesting = true;
+        this.initWebsocket();
+        this.currentState.isTesting = false;
     }
 
     storeCredentials(username, password, apiToken, thingId, server) {
-        let token = encodeURIComponent(username.toString()) + ':' + encodeURIComponent(password.toString());
+        try {
+            var token = encodeURIComponent(username.toString()) + ':' + encodeURIComponent(password.toString());
+
+        } catch (e) {
+            console.log(e)
+        }
         localStorage.setItem('uri', token);
         localStorage.setItem('api_token', apiToken);
         localStorage.setItem('thing_id', thingId);
@@ -67,32 +73,66 @@ class Ctrl extends PanelCtrl {
             default:
                 localStorage.setItem('server', 'things.eu-1.bosch-iot-suite.com');
         }
-        this.init()
-        console.log(this.credentials)
-        this.response = 'Credentials saved';
+        this.initCredentials();
+        this.currentState.isStored = true;
+        this.response = 'Credentials stored';
+        this.testConnection();
     }
 
-    init() {
-        this.initCredentials();
-        if (Object.keys(this.credentials).length === 0) {
-            this.response = 'No credentials';
-            return;
-        }
-        this.connect().then((ws) => {
-            this.response = 'Connected';
-            this.ws = ws;
-            this.ws.onmessage = (e) => console.log(e.data)
-        }).catch((err) => {
-            this.response = 'Connection error';
-            console.log(err)
+    checkCredentials() {
+        Object.keys(this.credentials).forEach(k => {
+            if (this.credentials[k] == "") {
+                return false;
+            }
+        });
+        return true;
+    }
 
+    showMessageStatus(msg) {
+        let data = JSON.parse(msg.data);
+        if (data.status == 200) {
+            this.currentState.messageStatus = data.value;
+        } else {
+            this.currentState.messageStatus = data.value.message;
+        }
+        setTimeout(() => this.currentState.messageStatus = "", 1000);
+        this.$scope.$apply();
+    }
+
+    initWebsocket() {
+        this.connect().then((ws) => {
+            this.currentState.isConnected = true;
+            this.$scope.$apply();
+            this.ws = ws;
+            this.ws.onmessage = (e) => this.showMessageStatus(e);
+        }).catch((err) => {
+            this.response = 'Could not initialize connection.';
+            this.currentState.isConnected = false;
+            console.log(err)
         })
     }
 
-    sendMessage(msg){
+    init() {
+        this.currentState = {
+            "isStored": false,
+            "isTesting": false,
+            "isConnected": false,
+            "isInitialized": false,
+            "messageStatus": ""
+        };
+        this.initCredentials();
+        if (this.checkCredentials()) {
+            this.initWebsocket()
+        } else {
+            this.response = 'Credentials missing or corrupted.';
+        }
+        this.currentState.isInitialized = true;
+    }
+
+    sendMessage(msg) {
         let topic = this.credentials.thingId.split(':');
         let testMsg = {
-            "topic": topic[0] + "/" + topic[1] +  "/things/live/messages/message",
+            "topic": topic[0] + "/" + topic[1] + "/things/live/messages/message",
             "headers": {
                 "content-type": "text/plain",
                 "correlation-id": this.credentials.thingId
@@ -110,7 +150,7 @@ class Ctrl extends PanelCtrl {
         return new Promise(function (resolve, reject) {
             let ws = new WebSocket('wss://' + uri + '@'
                 + server + '/ws/2?x-cr-api-token='
-                + apiToken );
+                + apiToken);
             ws.onopen = function () {
                 resolve(ws);
             };
