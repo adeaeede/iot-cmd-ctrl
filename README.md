@@ -1,4 +1,4 @@
-# IoT Command & Control plugin for Grafana
+# IoT Command & Control plugin for Grafana and Bosch IoT Suite
 
 # Features
  * Sending command and control messages to your digital Twin
